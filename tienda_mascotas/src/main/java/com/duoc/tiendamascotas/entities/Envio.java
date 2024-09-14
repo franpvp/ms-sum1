@@ -1,27 +1,42 @@
 package com.duoc.tiendamascotas.entities;
+import jakarta.persistence.*;
 
 import java.util.List;
 
+@Entity
+@Table(name = "envio")
 public class Envio {
 
-    private int idEnvio;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_envio")
+    private Integer idEnvio;
+
+    @Column(name = "lista_productos")
     private List<Producto> listaProductos;
+
+    @Column(name = "ubicacion_actual")
     private String ubicacionActual;
+
+    @Column(name = "destino")
     private String destino;
 
-    public Envio(int idEnvio, List<Producto> listaProductos, String ubicacionActual, String destino) {
+    public Envio() {
+
+    }
+
+    public Envio(Integer idEnvio, List<Producto> listaProductos, String ubicacionActual, String destino) {
         this.idEnvio = idEnvio;
         this.listaProductos = listaProductos;
         this.ubicacionActual = ubicacionActual;
         this.destino = destino;
-
     }
 
-    public int getIdEnvio() {
+    public Integer getIdEnvio() {
         return idEnvio;
     }
 
-    public void setIdEnvio(int idEnvio) {
+    public void setIdEnvio(Integer idEnvio) {
         this.idEnvio = idEnvio;
     }
 

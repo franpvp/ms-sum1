@@ -1,24 +1,41 @@
 package com.duoc.tiendamascotas.entities;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "producto")
 public class Producto {
-    private int id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_producto")
+    private Integer idProducto;
+
+    @Column(name = "nombre")
     private String nombre;
+
+    @Column(name = "precio")
     private double precio;
+
+    @Column(name = "cantidad")
     private int cantidad;
 
-    public Producto(int id, String nombre, double precio, int cantidad) {
-        this.id = id;
+    public Producto() {
+
+    }
+
+    public Producto(Integer idProducto, String nombre, double precio, int cantidad) {
+        this.idProducto = idProducto;
         this.nombre = nombre;
         this.precio = precio;
         this.cantidad = cantidad;
     }
 
-    public int getId() {
-        return id;
+    public int getIdProducto() {
+        return idProducto;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setIdProducto(int idProducto) {
+        this.idProducto = idProducto;
     }
 
     public String getNombre() {
