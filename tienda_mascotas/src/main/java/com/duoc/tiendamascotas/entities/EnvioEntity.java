@@ -1,19 +1,19 @@
 package com.duoc.tiendamascotas.entities;
+import com.duoc.tiendamascotas.dto.ProductoDTO;
 import jakarta.persistence.*;
+import lombok.Builder;
 
 import java.util.List;
 
+@Builder
 @Entity
 @Table(name = "envio")
-public class Envio {
+public class EnvioEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_envio")
     private Integer idEnvio;
-
-    @Column(name = "lista_productos")
-    private List<Producto> listaProductos;
 
     @Column(name = "ubicacion_actual")
     private String ubicacionActual;
@@ -21,15 +21,17 @@ public class Envio {
     @Column(name = "destino")
     private String destino;
 
-    public Envio() {
+    @Column(name = "id_estado_envio")
+    private Integer idEstadoEnvio;
 
+    public EnvioEntity() {
     }
 
-    public Envio(Integer idEnvio, List<Producto> listaProductos, String ubicacionActual, String destino) {
+    public EnvioEntity(Integer idEnvio, String ubicacionActual, String destino, Integer idEstadoEnvio) {
         this.idEnvio = idEnvio;
-        this.listaProductos = listaProductos;
         this.ubicacionActual = ubicacionActual;
         this.destino = destino;
+        this.idEstadoEnvio = idEstadoEnvio;
     }
 
     public Integer getIdEnvio() {
@@ -40,12 +42,12 @@ public class Envio {
         this.idEnvio = idEnvio;
     }
 
-    public List<Producto> getListaProductos() {
-        return listaProductos;
+    public String getUbicacionActual() {
+        return ubicacionActual;
     }
 
-    public void setListaProductos(List<Producto> listaProductos) {
-        this.listaProductos = listaProductos;
+    public void setUbicacionActual(String ubicacionActual) {
+        this.ubicacionActual = ubicacionActual;
     }
 
     public String getDestino() {
@@ -56,12 +58,11 @@ public class Envio {
         this.destino = destino;
     }
 
-    public String getUbicacionActual() {
-        return ubicacionActual;
+    public Integer getIdEstadoEnvio() {
+        return idEstadoEnvio;
     }
 
-    public void setUbicacionActual(String ubicacionActual) {
-        this.ubicacionActual = ubicacionActual;
+    public void setIdEstadoEnvio(Integer idEstadoEnvio) {
+        this.idEstadoEnvio = idEstadoEnvio;
     }
-
 }

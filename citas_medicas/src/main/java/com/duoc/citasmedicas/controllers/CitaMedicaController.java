@@ -15,11 +15,12 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
+@RequestMapping("/api/cita")
 public class CitaMedicaController {
     @Autowired
     private CitaMedicaService citaMedicaService;
 
-    @GetMapping("/citaMedica/{idCita}")
+    @GetMapping("/{idCita}")
     public ResponseEntity<Optional<CitaMedicaDTO>> getCitasById(@PathVariable("idCita") int idCita) {
         return new ResponseEntity<>(citaMedicaService.obtenerCitaMedica(idCita), HttpStatus.CREATED);
     }

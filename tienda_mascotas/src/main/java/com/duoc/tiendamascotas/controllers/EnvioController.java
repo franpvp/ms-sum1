@@ -1,6 +1,6 @@
 package com.duoc.tiendamascotas.controllers;
 
-import com.duoc.tiendamascotas.entities.Envio;
+import com.duoc.tiendamascotas.dto.EnvioDTO;
 import com.duoc.tiendamascotas.services.EnvioProductoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -18,13 +19,21 @@ public class EnvioController {
     @Autowired
     private EnvioProductoService envioProductoService;
 
-    @GetMapping("/lista")
-    public ResponseEntity<List<Envio>> obtenerEnvios() {
+    @PostMapping("/generarEnvio")
+    public ResponseEntity<String> generarEnvio(
+            @RequestBody EnvioDTO envioDTO
+    ) {
+        envioProductoService.generarEnvio(envioDTO);
+        return new ResponseEntity<>("Envio creado exitosamente", HttpStatus.CREATED);
+    }
+
+    @GetMapping("/getLista")
+    public ResponseEntity<List<EnvioDTO>> obtenerEnvios() {
         return new ResponseEntity<>(envioProductoService.obtenerEnvios(), HttpStatus.CREATED);
     }
 
     @GetMapping("/{idEnvio}")
-    public ResponseEntity<Envio> getEnvioById(@PathVariable("idEnvio") int idEnvio){
+    public ResponseEntity<Optional<EnvioDTO>> getEnvioById(@PathVariable("idEnvio") int idEnvio){
         return new ResponseEntity<>(envioProductoService.consultarEnvioById(idEnvio), HttpStatus.CREATED);
     }
 

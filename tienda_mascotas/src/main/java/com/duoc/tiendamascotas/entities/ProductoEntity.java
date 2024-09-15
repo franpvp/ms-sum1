@@ -1,9 +1,11 @@
 package com.duoc.tiendamascotas.entities;
 import jakarta.persistence.*;
+import lombok.Builder;
 
+@Builder
 @Entity
 @Table(name = "producto")
-public class Producto {
+public class ProductoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,27 +16,26 @@ public class Producto {
     private String nombre;
 
     @Column(name = "precio")
-    private double precio;
+    private int precio;
 
-    @Column(name = "cantidad")
-    private int cantidad;
+    @Column(name = "stock")
+    private int stock;
 
-    public Producto() {
-
+    public ProductoEntity() {
     }
 
-    public Producto(Integer idProducto, String nombre, double precio, int cantidad) {
+    public ProductoEntity(Integer idProducto, String nombre, int precio, int stock) {
         this.idProducto = idProducto;
         this.nombre = nombre;
         this.precio = precio;
-        this.cantidad = cantidad;
+        this.stock = stock;
     }
 
-    public int getIdProducto() {
+    public Integer getIdProducto() {
         return idProducto;
     }
 
-    public void setIdProducto(int idProducto) {
+    public void setIdProducto(Integer idProducto) {
         this.idProducto = idProducto;
     }
 
@@ -46,13 +47,19 @@ public class Producto {
         this.nombre = nombre;
     }
 
-    public double getPrecio() {
+    public int getPrecio() {
         return precio;
     }
 
-    public void setPrecio(double precio) {
+    public void setPrecio(int precio) {
         this.precio = precio;
     }
 
+    public int getStock() {
+        return stock;
+    }
 
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
 }
