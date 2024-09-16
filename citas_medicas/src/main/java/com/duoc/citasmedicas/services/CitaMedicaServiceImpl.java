@@ -87,24 +87,24 @@ public class CitaMedicaServiceImpl implements CitaMedicaService {
     }
 
     @Override
-    public CitaMedicaDTO modificarCitaMedica(int id_cita, CitaMedicaDTO nuevaCitaDto) {
-        return citaMedicaRepository.findById(id_cita)
+    public CitaMedicaDTO modificarCitaMedica(int idCita, CitaMedicaDTO nuevaCitaDto) {
+        return citaMedicaRepository.findById(idCita)
                 .map(cita -> {
                     cita.setPaciente(citaMapper.pacienteDtoToEntity(nuevaCitaDto.getPacienteDTO()));
                     cita.setMedico(citaMapper.medicoDtoToEntity(nuevaCitaDto.getMedicoDTO()));
                     cita.setHorario(citaMapper.horarioDtoToEntity(nuevaCitaDto.getHorarioDTO()));
                     return citaMapper.citaEntityToDTO(citaMedicaRepository.save(cita));
                 })
-                .orElseThrow(() -> new CitaMedicaNotFoundException("Cita médica no encontrada con id: " + id_cita));
+                .orElseThrow(() -> new CitaMedicaNotFoundException("Cita médica no encontrada con id: " + idCita));
     }
 
     @Override
-    public void eliminarCitaMedicaById(int id_cita) {
+    public void eliminarCitaMedicaById(int idCita) {
 
-        if (id_cita <= 0) {
+        if (idCita <= 0) {
             throw new IllegalArgumentException("El ID de la cita médica debe ser positivo y no nulo");
         }
-        CitaMedicaEntity citaMedicaEntity = citaMedicaRepository.findById(id_cita)
+        CitaMedicaEntity citaMedicaEntity = citaMedicaRepository.findById(idCita)
                 .orElseThrow(() -> new RuntimeException("Cita médica no encontrada"));
 
         HorarioEntity horarioEntity = citaMedicaEntity.getHorario();
@@ -116,7 +116,7 @@ public class CitaMedicaServiceImpl implements CitaMedicaService {
             throw new RuntimeException("Horario asociado a la cita médica no encontrado");
         }
 
-        citaMedicaRepository.deleteById(id_cita);
+        citaMedicaRepository.deleteById(idCita);
     }
 
 }

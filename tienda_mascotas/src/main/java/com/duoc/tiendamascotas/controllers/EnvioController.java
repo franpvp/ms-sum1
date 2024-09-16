@@ -1,5 +1,6 @@
 package com.duoc.tiendamascotas.controllers;
 
+import com.duoc.tiendamascotas.dto.DetalleEnvioProductoDTO;
 import com.duoc.tiendamascotas.dto.EnvioDTO;
 import com.duoc.tiendamascotas.services.EnvioProductoService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,18 +28,25 @@ public class EnvioController {
         return new ResponseEntity<>("Envio creado exitosamente", HttpStatus.CREATED);
     }
 
+    @PutMapping("/modificar/{idEnvio}/{idEstadoEnvio}")
+    public ResponseEntity<String> modificarEstadoEnvio(@PathVariable("idEnvio") int idEnvio, @PathVariable("idEstadoEnvio") int idEstadoEnvio){
+        envioProductoService.modificarEstadoEnvio(idEnvio, idEstadoEnvio);
+
+        return new ResponseEntity<>("Envío modificado exitosamente", HttpStatus.OK);
+    }
+
     @GetMapping("/getLista")
     public ResponseEntity<List<EnvioDTO>> obtenerEnvios() {
-        return new ResponseEntity<>(envioProductoService.obtenerEnvios(), HttpStatus.CREATED);
+        return new ResponseEntity<>(envioProductoService.obtenerEnvios(), HttpStatus.OK);
     }
 
     @GetMapping("/{idEnvio}")
-    public ResponseEntity<Optional<EnvioDTO>> getEnvioById(@PathVariable("idEnvio") int idEnvio){
-        return new ResponseEntity<>(envioProductoService.consultarEnvioById(idEnvio), HttpStatus.CREATED);
+    public ResponseEntity<Optional<EnvioDTO>> consultarEnvioById(@PathVariable("idEnvio") int idEnvio){
+        return new ResponseEntity<>(envioProductoService.consultarEnvioById(idEnvio), HttpStatus.OK);
     }
 
     @GetMapping("/ubicacion/{idEnvio}")
     public ResponseEntity<String> getUbicacionActual(@PathVariable("idEnvio") int idEnvio){
-        return new ResponseEntity<>(envioProductoService.consultarUbicacion(idEnvio), HttpStatus.CREATED);
+        return new ResponseEntity<>(envioProductoService.consultarUbicacion(idEnvio), HttpStatus.OK);
     }
 }

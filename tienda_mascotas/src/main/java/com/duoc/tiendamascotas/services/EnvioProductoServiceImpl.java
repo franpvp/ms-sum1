@@ -1,9 +1,12 @@
 package com.duoc.tiendamascotas.services;
 
+import com.duoc.tiendamascotas.dto.DetalleEnvioProductoDTO;
 import com.duoc.tiendamascotas.dto.EnvioDTO;
+import com.duoc.tiendamascotas.dto.ProductoDTO;
 import com.duoc.tiendamascotas.entities.DetalleEnvioProductoEntity;
 import com.duoc.tiendamascotas.entities.EnvioEntity;
 import com.duoc.tiendamascotas.entities.ProductoEntity;
+import com.duoc.tiendamascotas.exceptions.EnvioNotFoundException;
 import com.duoc.tiendamascotas.mapper.EnvioMapper;
 import com.duoc.tiendamascotas.repositories.DetalleEnvioProductoRepository;
 import com.duoc.tiendamascotas.repositories.EnvioRepository;
@@ -29,17 +32,6 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
     @Autowired
     private EnvioMapper envioMapper;
 
-    public EnvioProductoServiceImpl() {
-
-        // Inicializar lista de envios
-//        envios.add(new Envio(envioIdCounter.getAndIncrement(), List.of(productos.get(0), productos.get(1), productos.get(2)), "En Bodega", "Calle Nueva York 123, Santiago, Región Metropolitana"));
-//        envios.add(new Envio(envioIdCounter.getAndIncrement(), List.of(productos.get(4), productos.get(1)), "Entregado", "Avenida del Mar 456, La Serena, Coquimbo"));
-//        envios.add(new Envio(envioIdCounter.getAndIncrement(), List.of(productos.get(3), productos.get(2)), "En Bodega", "Calle Prat 789, Valparaíso, Valparaíso"));
-//        envios.add(new Envio(envioIdCounter.getAndIncrement(), List.of(productos.get(0), productos.get(4)), "En Bodega", "Avenida Alemania 101, Temuco, La Araucanía"));
-//        envios.add(new Envio(envioIdCounter.getAndIncrement(), List.of(productos.get(1), productos.get(4)), "En Camino Destino", "Calle Colón 202, Punta Arenas, Magallanes"));
-    }
-
-    // Registrar nuevos envíos, actualizar su estado y consultar la ubicación actual
     @Override
     public void generarEnvio(EnvioDTO envioDTO) {
 
@@ -49,10 +41,10 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
                             .destino(envioDTO.getDestino())
                             .idEstadoEnvio(envioDTO.getIdEstadoEnvio())
                             .build());
-            envioDTO.getListaIdProducto().forEach(idProd -> {
+            envioDTO.getListaProducto().forEach(producto -> {
                 DetalleEnvioProductoEntity detalleEnvioProductoEntity = detalleEnvioProductoRepository.save(DetalleEnvioProductoEntity.builder()
                                 .idEnvio(envioEntityGuardado.getIdEnvio())
-                                .idProducto(idProd)
+                                .idProducto(producto.getIdProducto())
                         .build());
             });
         } catch (Exception ex) {
@@ -61,15 +53,45 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
     }
 
     @Override
+    public void modificarEstadoEnvio(int idEnvio, int idEstadoEnvio) {
+        Optional<EnvioEntity> envioOptional = envioRepository.findById(idEnvio);
+        if(envioOptional.isPresent()){
+            EnvioEntity envioEntity = envioOptional.get();
+            envioEntity.setIdEstadoEnvio(idEstadoEnvio);
+            envioRepository.save(envioEntity);
+        }
+
+    }
+
+    @Override
     public List<EnvioDTO> obtenerEnvios() {
         return envioRepository.findAll().stream().map(envioEntity ->
-                envioMapper.envioEntityToDTO(envioEntity)).toList();
+                consultarEnvioById(envioEntity.getIdEnvio()).get()).toList();
     }
 
     @Override
     public Optional<EnvioDTO> consultarEnvioById(int id) {
-        return envioRepository.findById(id).map(envioEntity ->
-                envioMapper.envioEntityToDTO(envioEntity));
+
+        Optional<EnvioEntity> envio = envioRepository.findById(id);
+        if(envio.isPresent()){
+            List<DetalleEnvioProductoEntity> listaDetalles = detalleEnvioProductoRepository.findAllByIdEnvio(id);
+
+            List<ProductoDTO> listaProductos = new ArrayList<>();
+            listaDetalles.forEach(detalleEnvioProd -> {
+                ProductoDTO productoDTO = envioMapper.productoEntityToDTO(productoRepository.findById(detalleEnvioProd.getIdProducto()).get());
+                listaProductos.add(productoDTO);
+            });
+
+            return Optional.ofNullable(EnvioDTO.builder()
+                    .idEnvio(envio.get().getIdEnvio())
+                    .listaProducto(listaProductos)
+                    .ubicacionActual(envio.get().getUbicacionActual())
+                    .destino(envio.get().getDestino())
+                    .idEstadoEnvio(envio.get().getIdEstadoEnvio())
+                    .build());
+        }
+
+        return Optional.empty();
     }
 
     public String consultarUbicacion(int idEnvio) {
@@ -80,10 +102,6 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
         return envioDTO;
     }
 
-    @Override
-    public EnvioDTO consultarDetalleEnvio(int idDetalleEnvio) {
-        return null;
-    }
 
 
 }

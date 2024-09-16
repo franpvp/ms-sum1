@@ -14,7 +14,7 @@ public class EnvioDTO {
     private Integer idEnvio;
 
     @NotNull(message = "El campo idEnvio no puede estar vacío")
-    private List<Integer> listaIdProducto;
+    private List<ProductoDTO> listaProducto;
 
     @NotNull(message = "El campo ubicacionActual no puede estar vacío")
     @Size(min = 5, max = 100, message = "El campo ubicacionActual debe tener entre 5 y 100 caracteres")
