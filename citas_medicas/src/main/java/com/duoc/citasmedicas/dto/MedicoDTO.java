@@ -36,7 +36,6 @@ public class MedicoDTO {
 
     @NotNull(message = "El campo idEspecialidad no puede estar vacío")
     @Positive(message = "El campo idEspecialidad debe ser un número positivo")
-    @NotNull(message = "El campo idEspecialidad no puede estar vacío")
     private int idEspecialidad;
 
 }

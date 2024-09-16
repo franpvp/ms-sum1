@@ -36,8 +36,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+
     @ExceptionHandler(EnvioNotFoundException.class)
-    public ResponseEntity<?> handleCitaMedicaNotFoundException(EnvioNotFoundException ex) {
+    public ResponseEntity<?> handleEnvioNotFoundException(EnvioNotFoundException ex) {
         Map<String, String> response = new HashMap<>();
         response.put("message", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

@@ -16,6 +16,7 @@ public interface EnvioProductoService {
     List<EnvioDTO> obtenerEnvios();
     Optional<EnvioDTO> consultarEnvioById(int id);
     String consultarUbicacion(int idEnvio);
+    String eliminarEnvio(int idEnvio);
 
 
 }

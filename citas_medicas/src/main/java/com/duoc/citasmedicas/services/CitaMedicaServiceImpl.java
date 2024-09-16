@@ -57,6 +57,10 @@ public class CitaMedicaServiceImpl implements CitaMedicaService {
 
     @Override
     public Optional<CitaMedicaDTO> obtenerCitaMedicaById(int id) {
+
+        if (id <= 0) {
+            throw new IllegalNumberException("El ID del envío debe ser positivo y no nulo");
+        }
         return Optional.ofNullable(citaMedicaRepository.findById(id)
                 .map(citaMedicaEntity -> citaMapper.citaEntityToDTO(citaMedicaEntity))
                 .orElseThrow(() -> new CitaMedicaNotFoundException("Cita médica no encontrada con id: " + id)));

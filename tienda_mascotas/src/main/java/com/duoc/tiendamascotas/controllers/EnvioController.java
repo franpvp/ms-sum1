@@ -3,6 +3,7 @@ package com.duoc.tiendamascotas.controllers;
 import com.duoc.tiendamascotas.dto.DetalleEnvioProductoDTO;
 import com.duoc.tiendamascotas.dto.EnvioDTO;
 import com.duoc.tiendamascotas.services.EnvioProductoService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,17 +23,17 @@ public class EnvioController {
 
     @PostMapping("/generarEnvio")
     public ResponseEntity<String> generarEnvio(
-            @RequestBody EnvioDTO envioDTO
+            @Valid @RequestBody EnvioDTO envioDTO
     ) {
         envioProductoService.generarEnvio(envioDTO);
         return new ResponseEntity<>("Envio creado exitosamente", HttpStatus.CREATED);
     }
 
-    @PutMapping("/modificar/{idEnvio}/{idEstadoEnvio}")
+    @PutMapping("/modificarEstado/{idEnvio}/{idEstadoEnvio}")
     public ResponseEntity<String> modificarEstadoEnvio(@PathVariable("idEnvio") int idEnvio, @PathVariable("idEstadoEnvio") int idEstadoEnvio){
         envioProductoService.modificarEstadoEnvio(idEnvio, idEstadoEnvio);
 
-        return new ResponseEntity<>("Envío modificado exitosamente", HttpStatus.OK);
+        return new ResponseEntity<>("Estado envio modificado exitosamente", HttpStatus.OK);
     }
 
     @GetMapping("/obtenerEnvios")
@@ -48,5 +49,10 @@ public class EnvioController {
     @GetMapping("/ubicacion/{idEnvio}")
     public ResponseEntity<String> getUbicacionActual(@PathVariable("idEnvio") int idEnvio){
         return new ResponseEntity<>(envioProductoService.consultarUbicacion(idEnvio), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/eliminar/{idEnvio}")
+    public ResponseEntity<String> eliminarEnvioById(@PathVariable("idEnvio") int idEnvio){
+        return new ResponseEntity<>(envioProductoService.eliminarEnvio(idEnvio), HttpStatus.OK);
     }
 }

@@ -7,6 +7,7 @@ import com.duoc.tiendamascotas.entities.DetalleEnvioProductoEntity;
 import com.duoc.tiendamascotas.entities.EnvioEntity;
 import com.duoc.tiendamascotas.entities.ProductoEntity;
 import com.duoc.tiendamascotas.exceptions.EnvioNotFoundException;
+import com.duoc.tiendamascotas.exceptions.IllegalNumberException;
 import com.duoc.tiendamascotas.mapper.EnvioMapper;
 import com.duoc.tiendamascotas.repositories.DetalleEnvioProductoRepository;
 import com.duoc.tiendamascotas.repositories.EnvioRepository;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
+@Transactional
 public class EnvioProductoServiceImpl implements EnvioProductoService {
 
     @Autowired
@@ -59,19 +61,31 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
             EnvioEntity envioEntity = envioOptional.get();
             envioEntity.setIdEstadoEnvio(idEstadoEnvio);
             envioRepository.save(envioEntity);
+        } else {
+            throw new EnvioNotFoundException("Id envio ingresado: " + idEnvio + ", no está en los registros");
         }
 
     }
 
     @Override
     public List<EnvioDTO> obtenerEnvios() {
-        return envioRepository.findAll().stream().map(envioEntity ->
-                consultarEnvioById(envioEntity.getIdEnvio()).get()).toList();
+        List<EnvioEntity> envios = envioRepository.findAll();
+
+        if (envios.isEmpty()) {
+            throw new EnvioNotFoundException("No se encontraron envios");
+        }
+
+        return envios.stream()
+                .map(envioEntity -> envioMapper.envioEntityToDTO(envioEntity))
+                .toList();
     }
 
     @Override
     public Optional<EnvioDTO> consultarEnvioById(int id) {
 
+        if(id <= 0) {
+            throw new IllegalNumberException("El id de envio debe ser positivo y no nulo");
+        }
         Optional<EnvioEntity> envio = envioRepository.findById(id);
         if(envio.isPresent()){
             List<DetalleEnvioProductoEntity> listaDetalles = detalleEnvioProductoRepository.findAllByIdEnvio(id);
@@ -89,17 +103,45 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
                     .destino(envio.get().getDestino())
                     .idEstadoEnvio(envio.get().getIdEstadoEnvio())
                     .build());
+        } else {
+            throw new EnvioNotFoundException("Envio no encontrado con id: " + id);
         }
-
-        return Optional.empty();
     }
 
     public String consultarUbicacion(int idEnvio) {
-        String envioDTO = envioRepository.findById(idEnvio).stream().map(envioEntity ->
-                envioMapper.envioEntityToDTO(envioEntity).getUbicacionActual()
-                ).toString();
+        // Valida que el ID sea positivo
+        if (idEnvio <= 0) {
+            throw new IllegalNumberException("El ID del envío debe ser positivo y no nulo");
+        }
 
-        return envioDTO;
+        // Busca el envío en el repositorio
+        EnvioEntity envioEntity = envioRepository.findById(idEnvio)
+                .orElseThrow(() -> new EnvioNotFoundException("No se han encontrado datos del envío con ID: " + idEnvio));
+
+        // Obtiene la ubicación actual del envío
+        String ubicacionActual = envioMapper.envioEntityToDTO(envioEntity).getUbicacionActual();
+
+        // Verifica si la ubicación está vacía
+        if (ubicacionActual == null || ubicacionActual.isEmpty()) {
+            throw new EnvioNotFoundException("No se ha encontrado la ubicación actual del envío con id: " + idEnvio);
+        }
+
+        return ubicacionActual;
+    }
+
+    @Override
+    public String eliminarEnvio(int idEnvio) {
+
+        if (idEnvio <= 0) {
+            throw new IllegalNumberException("El ID del envio debe ser positivo y no nulo");
+        }
+
+        EnvioEntity envioEntity = envioRepository.findById(idEnvio)
+                .orElseThrow(() -> new EnvioNotFoundException("El id de envio: " +  idEnvio +  ", no existe en los registros."));
+
+        detalleEnvioProductoRepository.deleteAllByIdEnvio(idEnvio);
+        envioRepository.deleteById(idEnvio);
+        return "Envio eliminado exitosamente";
     }
 
 }

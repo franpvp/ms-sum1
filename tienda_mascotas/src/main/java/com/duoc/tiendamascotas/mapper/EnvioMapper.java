@@ -17,6 +17,7 @@ public class EnvioMapper {
                 .idEnvio(envioEntity.getIdEnvio())
                 .ubicacionActual(envioEntity.getUbicacionActual())
                 .destino(envioEntity.getDestino())
+                .idEstadoEnvio(envioEntity.getIdEstadoEnvio())
                 .build();
     }
 
