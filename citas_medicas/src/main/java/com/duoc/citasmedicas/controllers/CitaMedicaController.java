@@ -20,28 +20,33 @@ public class CitaMedicaController {
     @Autowired
     private CitaMedicaService citaMedicaService;
 
+    @GetMapping("/obtenerCitasMedicas")
+    public ResponseEntity<List<CitaMedicaDTO>> getCitasMedicas() {
+        return new ResponseEntity<>(citaMedicaService.obtenerCitasMedicas(), HttpStatus.OK);
+    }
+
     @GetMapping("/{idCita}")
     public ResponseEntity<Optional<CitaMedicaDTO>> getCitasById(@PathVariable("idCita") int idCita) {
-        return new ResponseEntity<>(citaMedicaService.obtenerCitaMedica(idCita), HttpStatus.CREATED);
+        return new ResponseEntity<>(citaMedicaService.obtenerCitaMedicaById(idCita), HttpStatus.OK);
     }
 
     @GetMapping("/horarios-disponibles")
     public ResponseEntity<List<HorarioDTO>> getHorariosDisponibles() {
-        return new ResponseEntity<>(citaMedicaService.obtenerDisponibilidadHorarios(), HttpStatus.CREATED);
+        return new ResponseEntity<>(citaMedicaService.obtenerDisponibilidadHorarios(), HttpStatus.OK);
     }
 
     @PostMapping("/crearCitaMedica")
     public ResponseEntity<String> crearCitaMedica(
-            @Valid @RequestBody CitaMedicaDTO citaMedicaDTO
+            @Valid @RequestBody(required = true) CitaMedicaDTO citaMedicaDTO
     ) {
         citaMedicaService.crearCitaMedica(citaMedicaDTO);
-        return new ResponseEntity<>("Creado correctamente", HttpStatus.CREATED);
+        return new ResponseEntity<>("Cita médica creada correctamente", HttpStatus.CREATED);
     }
 
     @PutMapping("modificarCitaMedica/{id_cita}")
     public ResponseEntity<CitaMedicaDTO> modificarCitaMedica(
             @PathVariable("id_cita") int id_cita,
-            @RequestBody CitaMedicaDTO nuevaCitaMedicaDTO
+            @Valid @RequestBody(required = true) CitaMedicaDTO nuevaCitaMedicaDTO
     ) {
         CitaMedicaDTO citaMedicaDTOActualizada = citaMedicaService.modificarCitaMedica(id_cita, nuevaCitaMedicaDTO);
         if (citaMedicaDTOActualizada != null) {

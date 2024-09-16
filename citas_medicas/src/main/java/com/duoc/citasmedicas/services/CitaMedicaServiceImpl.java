@@ -7,6 +7,8 @@ import com.duoc.citasmedicas.entities.HorarioEntity;
 import com.duoc.citasmedicas.entities.MedicoEntity;
 import com.duoc.citasmedicas.entities.PacienteEntity;
 import com.duoc.citasmedicas.exceptions.CitaMedicaNotFoundException;
+import com.duoc.citasmedicas.exceptions.HorarioNotAvailableException;
+import com.duoc.citasmedicas.exceptions.IllegalNumberException;
 import com.duoc.citasmedicas.mapper.CitaMapper;
 import com.duoc.citasmedicas.repositories.CitaMedicaRepository;
 import com.duoc.citasmedicas.repositories.HorarioRepository;
@@ -40,12 +42,24 @@ public class CitaMedicaServiceImpl implements CitaMedicaService {
     @Autowired
     private CitaMapper citaMapper;
 
-    // Programar nuevas citas, cancelarlas y consultar la disponibilidad de horarios.
     @Override
-    public Optional<CitaMedicaDTO> obtenerCitaMedica(int id) {
-        return citaMedicaRepository.findById(id).map(citaMedicaEntity ->
-                citaMapper.citaEntityToDTO(citaMedicaEntity)
-        );
+    public List<CitaMedicaDTO> obtenerCitasMedicas() {
+        List<CitaMedicaEntity> citasMedicas = citaMedicaRepository.findAll();
+
+        if (citasMedicas.isEmpty()) {
+            throw new CitaMedicaNotFoundException("No se encontraron citas médicas");
+        }
+
+        return citasMedicas.stream()
+                .map(citaMedicaEntity -> citaMapper.citaEntityToDTO(citaMedicaEntity))
+                .toList();
+    }
+
+    @Override
+    public Optional<CitaMedicaDTO> obtenerCitaMedicaById(int id) {
+        return Optional.ofNullable(citaMedicaRepository.findById(id)
+                .map(citaMedicaEntity -> citaMapper.citaEntityToDTO(citaMedicaEntity))
+                .orElseThrow(() -> new CitaMedicaNotFoundException("Cita médica no encontrada con id: " + id)));
     }
 
     @Override
@@ -56,7 +70,12 @@ public class CitaMedicaServiceImpl implements CitaMedicaService {
     }
 
     @Override
-    public void crearCitaMedica(CitaMedicaDTO citaMedicaDTO) {
+    public CitaMedicaDTO crearCitaMedica(CitaMedicaDTO citaMedicaDTO) {
+
+        // Validar que el idCita no sea nulo ni inválido (si se requiere que esté presente)
+        if (citaMedicaDTO.getIdCita() != null && citaMedicaDTO.getIdCita() <= 0) {
+            throw new IllegalNumberException("El ID de la cita médica debe ser positivo y no nulo");
+        }
 
         // Valida que el paciente, medico y horario existan
         PacienteEntity pacienteEntity = pacienteRepository.findById(citaMedicaDTO.getPacienteDTO().getIdPaciente())
@@ -68,7 +87,7 @@ public class CitaMedicaServiceImpl implements CitaMedicaService {
 
         // Verifica si el horario está disponible
         if (!horarioEntity.isDisponible()) {
-            throw new RuntimeException("El horario no está disponible");
+            throw new HorarioNotAvailableException("Horario ingresado no disponible: " + horarioEntity);
         }
 
         // Marca el horario como no disponible
@@ -76,23 +95,42 @@ public class CitaMedicaServiceImpl implements CitaMedicaService {
         horarioRepository.save(horarioEntity);
 
         try {
-            CitaMedicaEntity citaMedicaEntityGuardado = citaMedicaRepository.save(CitaMedicaEntity.builder()
+            // Crear el objeto CitaMedicaEntity sin idCita si es autogenerado
+            CitaMedicaEntity citaMedicaEntity = CitaMedicaEntity.builder()
                     .pacienteEntity(pacienteEntity)
                     .medicoEntity(medicoEntity)
                     .horarioEntity(horarioEntity)
-                    .build());
+                    .build();
+
+            // Guardar la entidad en la base de datos
+            CitaMedicaEntity citaMedicaEntityGuardado = citaMedicaRepository.save(citaMedicaEntity);
+
+            // Convertir a DTO para retornar con el ID generado
+            return citaMapper.citaEntityToDTO(citaMedicaEntityGuardado);
+
         } catch (Exception ex) {
-            throw new RuntimeException("No se pudo crear cita medica");
+            throw new RuntimeException("No se pudo crear la cita médica", ex);
         }
     }
 
     @Override
     public CitaMedicaDTO modificarCitaMedica(int idCita, CitaMedicaDTO nuevaCitaDto) {
+
+        PacienteEntity pacienteEntity = pacienteRepository.findById(nuevaCitaDto.getPacienteDTO().getIdPaciente())
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        MedicoEntity medicoEntity = medicoRepository.findById(nuevaCitaDto.getMedicoDTO().getIdMedico())
+                .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
+        HorarioEntity horarioEntity = horarioRepository.findById(nuevaCitaDto.getHorarioDTO().getIdHorario())
+                .orElseThrow(() -> new RuntimeException("Horario no encontrado"));
+
+        if (idCita <= 0) {
+            throw new IllegalNumberException("El ID de la cita médica debe ser positivo y no nulo");
+        }
         return citaMedicaRepository.findById(idCita)
                 .map(cita -> {
-                    cita.setPaciente(citaMapper.pacienteDtoToEntity(nuevaCitaDto.getPacienteDTO()));
-                    cita.setMedico(citaMapper.medicoDtoToEntity(nuevaCitaDto.getMedicoDTO()));
-                    cita.setHorario(citaMapper.horarioDtoToEntity(nuevaCitaDto.getHorarioDTO()));
+                    cita.setPaciente(pacienteEntity);
+                    cita.setMedico(medicoEntity);
+                    cita.setHorario(horarioEntity);
                     return citaMapper.citaEntityToDTO(citaMedicaRepository.save(cita));
                 })
                 .orElseThrow(() -> new CitaMedicaNotFoundException("Cita médica no encontrada con id: " + idCita));
@@ -102,10 +140,10 @@ public class CitaMedicaServiceImpl implements CitaMedicaService {
     public void eliminarCitaMedicaById(int idCita) {
 
         if (idCita <= 0) {
-            throw new IllegalArgumentException("El ID de la cita médica debe ser positivo y no nulo");
+            throw new IllegalNumberException("El ID de la cita médica debe ser positivo y no nulo");
         }
         CitaMedicaEntity citaMedicaEntity = citaMedicaRepository.findById(idCita)
-                .orElseThrow(() -> new RuntimeException("Cita médica no encontrada"));
+                .orElseThrow(() -> new CitaMedicaNotFoundException("Cita médica no encontrada con id: " + idCita));
 
         HorarioEntity horarioEntity = citaMedicaEntity.getHorario();
         if (horarioEntity != null) {
@@ -113,9 +151,8 @@ public class CitaMedicaServiceImpl implements CitaMedicaService {
             horarioEntity.setDisponible(true);
             horarioRepository.save(horarioEntity);
         } else {
-            throw new RuntimeException("Horario asociado a la cita médica no encontrado");
+            throw new HorarioNotAvailableException("Horario asociado a la cita médica no encontrado: " + horarioEntity);
         }
-
         citaMedicaRepository.deleteById(idCita);
     }
 

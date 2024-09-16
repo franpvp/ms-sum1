@@ -35,7 +35,7 @@ public class EnvioController {
         return new ResponseEntity<>("Envío modificado exitosamente", HttpStatus.OK);
     }
 
-    @GetMapping("/getLista")
+    @GetMapping("/obtenerEnvios")
     public ResponseEntity<List<EnvioDTO>> obtenerEnvios() {
         return new ResponseEntity<>(envioProductoService.obtenerEnvios(), HttpStatus.OK);
     }

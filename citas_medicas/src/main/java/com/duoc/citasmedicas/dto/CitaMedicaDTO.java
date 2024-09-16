@@ -1,16 +1,18 @@
 package com.duoc.citasmedicas.dto;
 
-import com.duoc.citasmedicas.entities.HorarioEntity;
-import com.duoc.citasmedicas.entities.MedicoEntity;
-import com.duoc.citasmedicas.entities.PacienteEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
 public class CitaMedicaDTO {
+
+    @JsonProperty(value = "idCita")
+    @Positive(message = "El campo idCita debe ser un número positivo")
+    private Integer idCita;
 
     @JsonProperty(value = "paciente")
     @NotNull(message = "El campo paciente no puede estar vacío")

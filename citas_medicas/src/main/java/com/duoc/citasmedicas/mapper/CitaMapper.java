@@ -16,6 +16,7 @@ public class CitaMapper {
     // ENTRA ENTITY Y SALE DTO
     public CitaMedicaDTO citaEntityToDTO(CitaMedicaEntity citaMedicaEntity) {
         return CitaMedicaDTO.builder()
+                .idCita(citaMedicaEntity.getIdCita())
                 .pacienteDTO(pacienteEntityToDTO(citaMedicaEntity.getPaciente()))
                 .medicoDTO(medicoEntityToDTO(citaMedicaEntity.getMedico()))
                 .horarioDTO(horarioEntityToDTO(citaMedicaEntity.getHorario()))

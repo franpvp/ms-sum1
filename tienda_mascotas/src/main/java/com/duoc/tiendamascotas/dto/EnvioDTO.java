@@ -1,5 +1,6 @@
 package com.duoc.tiendamascotas.dto;
 
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -11,6 +12,7 @@ import java.util.List;
 @Builder
 public class EnvioDTO {
 
+    @Positive(message = "El campo idEnvio debe ser un número positivo")
     private Integer idEnvio;
 
     @NotNull(message = "El campo idEnvio no puede estar vacío")
@@ -25,6 +27,7 @@ public class EnvioDTO {
     private String destino;
 
     @NotNull(message = "El campo idEstadoEnvio no puede estar vacío")
+    @Positive(message = "El campo idEstadoEnvio debe ser un número positivo")
     private Integer idEstadoEnvio;
 
 }
