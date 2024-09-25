@@ -47,7 +47,7 @@ public class EnvioController {
     }
 
     @GetMapping("/ubicacion/{idEnvio}")
-    public ResponseEntity<String> getUbicacionActual(@PathVariable("idEnvio") int idEnvio){
+    public ResponseEntity<String> getUbicacionaActual(@PathVariable("idEnvio") int idEnvio){
         return new ResponseEntity<>(envioProductoService.consultarUbicacion(idEnvio), HttpStatus.OK);
     }
 

@@ -2,13 +2,14 @@ package com.duoc.tiendamascotas.entities;
 import com.duoc.tiendamascotas.dto.ProductoDTO;
 import jakarta.persistence.*;
 import lombok.Builder;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 
 @Builder
 @Entity
 @Table(name = "envio")
-public class EnvioEntity {
+public class EnvioEntity extends RepresentationModel<ProductoEntity>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

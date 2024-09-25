@@ -1,11 +1,12 @@
 package com.duoc.tiendamascotas.entities;
 import jakarta.persistence.*;
 import lombok.Builder;
+import org.springframework.hateoas.RepresentationModel;
 
 @Builder
 @Entity
 @Table(name = "producto")
-public class ProductoEntity {
+public class ProductoEntity extends RepresentationModel<ProductoEntity>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface DetalleEnvioProductoRepository extends JpaRepository<DetalleEnvioProductoEntity, Integer> {
+public interface DetalleEnvioRepository extends JpaRepository<DetalleEnvioProductoEntity, Integer> {
 
     List<DetalleEnvioProductoEntity> findAllByIdEnvio(int id);
 

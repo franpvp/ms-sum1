@@ -1,15 +1,13 @@
 package com.duoc.tiendamascotas.services;
 
-import com.duoc.tiendamascotas.dto.DetalleEnvioProductoDTO;
 import com.duoc.tiendamascotas.dto.EnvioDTO;
 import com.duoc.tiendamascotas.dto.ProductoDTO;
 import com.duoc.tiendamascotas.entities.DetalleEnvioProductoEntity;
 import com.duoc.tiendamascotas.entities.EnvioEntity;
-import com.duoc.tiendamascotas.entities.ProductoEntity;
 import com.duoc.tiendamascotas.exceptions.EnvioNotFoundException;
 import com.duoc.tiendamascotas.exceptions.IllegalNumberException;
 import com.duoc.tiendamascotas.mapper.EnvioMapper;
-import com.duoc.tiendamascotas.repositories.DetalleEnvioProductoRepository;
+import com.duoc.tiendamascotas.repositories.DetalleEnvioRepository;
 import com.duoc.tiendamascotas.repositories.EnvioRepository;
 import com.duoc.tiendamascotas.repositories.ProductoRepository;
 import jakarta.transaction.Transactional;
@@ -29,7 +27,7 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
     private ProductoRepository productoRepository;
 
     @Autowired
-    private DetalleEnvioProductoRepository detalleEnvioProductoRepository;
+    private DetalleEnvioRepository detalleEnvioRepository;
 
     @Autowired
     private EnvioMapper envioMapper;
@@ -44,7 +42,7 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
                             .idEstadoEnvio(envioDTO.getIdEstadoEnvio())
                             .build());
             envioDTO.getListaProducto().forEach(producto -> {
-                DetalleEnvioProductoEntity detalleEnvioProductoEntity = detalleEnvioProductoRepository.save(DetalleEnvioProductoEntity.builder()
+                DetalleEnvioProductoEntity detalleEnvioProductoEntity = detalleEnvioRepository.save(DetalleEnvioProductoEntity.builder()
                                 .idEnvio(envioEntityGuardado.getIdEnvio())
                                 .idProducto(producto.getIdProducto())
                         .build());
@@ -64,7 +62,6 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
         } else {
             throw new EnvioNotFoundException("Id envio ingresado: " + idEnvio + ", no está en los registros");
         }
-
     }
 
     @Override
@@ -74,7 +71,6 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
         if (envios.isEmpty()) {
             throw new EnvioNotFoundException("No se encontraron envios");
         }
-
         return envios.stream()
                 .map(envioEntity -> envioMapper.envioEntityToDTO(envioEntity))
                 .toList();
@@ -86,9 +82,11 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
         if(id <= 0) {
             throw new IllegalNumberException("El id de envio debe ser positivo y no nulo");
         }
+
         Optional<EnvioEntity> envio = envioRepository.findById(id);
+
         if(envio.isPresent()){
-            List<DetalleEnvioProductoEntity> listaDetalles = detalleEnvioProductoRepository.findAllByIdEnvio(id);
+            List<DetalleEnvioProductoEntity> listaDetalles = detalleEnvioRepository.findAllByIdEnvio(id);
 
             List<ProductoDTO> listaProductos = new ArrayList<>();
             listaDetalles.forEach(detalleEnvioProd -> {
@@ -139,7 +137,7 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
         EnvioEntity envioEntity = envioRepository.findById(idEnvio)
                 .orElseThrow(() -> new EnvioNotFoundException("El id de envio: " +  idEnvio +  ", no existe en los registros."));
 
-        detalleEnvioProductoRepository.deleteAllByIdEnvio(idEnvio);
+        detalleEnvioRepository.deleteAllByIdEnvio(idEnvio);
         envioRepository.deleteById(idEnvio);
         return "Envio eliminado exitosamente";
     }
