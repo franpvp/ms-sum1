@@ -15,7 +15,7 @@ public class EnvioDTO {
     @Positive(message = "El campo idEnvio debe ser un número positivo")
     private Integer idEnvio;
 
-    @NotNull(message = "El campo idEnvio no puede estar vacío")
+    @NotNull(message = "El campo listaProducto no puede estar vacío")
     private List<ProductoDTO> listaProducto;
 
     @NotNull(message = "El campo ubicacionActual no puede estar vacío")

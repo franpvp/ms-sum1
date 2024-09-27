@@ -42,6 +42,7 @@ public class EnvioControllerTest {
     @MockBean
     private EnvioProductoServiceImpl envioProductoService;
 
+    @Mock
     private ObjectMapper objectMapper;
 
     @InjectMocks
@@ -61,12 +62,6 @@ public class EnvioControllerTest {
 
     @Test
     public void generarEnvioTest() throws Exception {
-        // Crear objeto EnvioDTO
-        EnvioDTO envioDTO = EnvioDTO.builder()
-                .ubicacionActual("ubicacion test")
-                .destino("destino test")
-                .idEstadoEnvio(1)
-                .build();
 
         // Simulación del servicio
         doNothing().when(envioProductoService).generarEnvio(any(EnvioDTO.class));

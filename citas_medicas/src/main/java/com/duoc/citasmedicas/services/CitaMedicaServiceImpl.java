@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Slf4j
@@ -56,14 +55,14 @@ public class CitaMedicaServiceImpl implements CitaMedicaService {
     }
 
     @Override
-    public Optional<CitaMedicaDTO> obtenerCitaMedicaById(int id) {
+    public CitaMedicaDTO obtenerCitaMedicaById(int id) {
 
         if (id <= 0) {
             throw new IllegalNumberException("El ID del envío debe ser positivo y no nulo");
         }
-        return Optional.ofNullable(citaMedicaRepository.findById(id)
+        return citaMedicaRepository.findById(id)
                 .map(citaMedicaEntity -> citaMapper.citaEntityToDTO(citaMedicaEntity))
-                .orElseThrow(() -> new CitaMedicaNotFoundException("Cita médica no encontrada con id: " + id)));
+                .orElseThrow(() -> new CitaMedicaNotFoundException("Cita médica no encontrada con id: " + id));
     }
 
     @Override

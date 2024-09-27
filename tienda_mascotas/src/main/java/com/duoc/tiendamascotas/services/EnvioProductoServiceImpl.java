@@ -33,7 +33,7 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
     private EnvioMapper envioMapper;
 
     @Override
-    public void generarEnvio(EnvioDTO envioDTO) {
+    public EnvioDTO generarEnvio(EnvioDTO envioDTO) {
 
         try {
             EnvioEntity envioEntityGuardado = envioRepository.save(EnvioEntity.builder()
@@ -47,19 +47,31 @@ public class EnvioProductoServiceImpl implements EnvioProductoService {
                                 .idProducto(producto.getIdProducto())
                         .build());
             });
+            envioDTO.setIdEnvio(envioEntityGuardado.getIdEnvio());
         } catch (Exception ex) {
             throw new RuntimeException("No se pudo crear el envio");
         }
+        return envioDTO;
     }
 
     @Override
-    public void modificarEstadoEnvio(int idEnvio, int idEstadoEnvio) {
+    public Optional<EnvioDTO> modificarEstadoEnvio(int idEnvio, int idEstadoEnvio) {
         Optional<EnvioEntity> envioOptional = envioRepository.findById(idEnvio);
-        if(envioOptional.isPresent()){
+
+        // Verificar si el envío existe
+        if (envioOptional.isPresent()) {
             EnvioEntity envioEntity = envioOptional.get();
+
+            // Modificar el estado del envío
             envioEntity.setIdEstadoEnvio(idEstadoEnvio);
+
+            // Guardar el envío modificado
             envioRepository.save(envioEntity);
+
+            // Convertir a DTO y devolver
+            return Optional.ofNullable(envioMapper.envioEntityToDTO(envioEntity));
         } else {
+            // Lanzar excepción si el envío no se encuentra
             throw new EnvioNotFoundException("Id envio ingresado: " + idEnvio + ", no está en los registros");
         }
     }
