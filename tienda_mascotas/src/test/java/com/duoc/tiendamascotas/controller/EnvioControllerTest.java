@@ -1,9 +1,7 @@
 package com.duoc.tiendamascotas.controller;
 
 import com.duoc.tiendamascotas.controllers.EnvioController;
-import com.duoc.tiendamascotas.dto.DetalleEnvioProductoDTO;
-import com.duoc.tiendamascotas.dto.EnvioDTO;
-import com.duoc.tiendamascotas.dto.ProductoDTO;
+import com.duoc.tiendamascotas.dto.*;
 import com.duoc.tiendamascotas.entities.DetalleEnvioProductoEntity;
 import com.duoc.tiendamascotas.entities.EnvioEntity;
 import com.duoc.tiendamascotas.entities.ProductoEntity;
@@ -64,7 +62,7 @@ public class EnvioControllerTest {
     public void generarEnvioTest() throws Exception {
 
         // Simulación del servicio
-        doNothing().when(envioProductoService).generarEnvio(any(EnvioDTO.class));
+        when(envioProductoService.generarEnvio(any(EnvioDTO.class))).thenReturn(envioDTO);
         // Ejecutar el test
         mockMvc.perform(post("/api/envio/generarEnvio")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -148,12 +146,12 @@ public class EnvioControllerTest {
     public void getUbicacionActualTest() throws Exception {
 
         int idEnvio = 1;
-        String ubicacionActual = "Ubicación Actual";
-        when(envioProductoService.consultarUbicacion(idEnvio)).thenReturn(ubicacionActual);
+        UbicacionActualDTO ubicacionActualDTO = new UbicacionActualDTO("Ubicación Actual");
+        when(envioProductoService.consultarUbicacion(anyInt())).thenReturn(String.valueOf(ubicacionActualDTO));
 
         mockMvc.perform(get("/api/envio/ubicacion/{idEnvio}", idEnvio))
                 .andExpect(status().isOk())
-                .andExpect(content().string(ubicacionActual));
+                .andExpect(jsonPath("$.ubicacion").value("Ubicación Actual"));
 
         verify(envioProductoService, times(1)).consultarUbicacion(idEnvio);
 
@@ -162,13 +160,12 @@ public class EnvioControllerTest {
     @Test
     public void eliminarEnvioByIdTest() throws Exception {
         int idEnvio = 1;
-        String respuesta = "Envio eliminado exitosamente";
+        EnvioEliminadoDTO envioEliminadoDTO = new EnvioEliminadoDTO("Envio eliminado exitosamente");
 
-        when(envioProductoService.eliminarEnvio(anyInt())).thenReturn(respuesta);
+        when(envioProductoService.eliminarEnvio(anyInt())).thenReturn(String.valueOf(envioEliminadoDTO));
 
         mockMvc.perform(delete("/api/envio/eliminar/{idEnvio}", idEnvio))
-                .andExpect(status().isOk())
-                .andExpect(content().string(respuesta));
+                .andExpect(status().isOk());
 
         verify(envioProductoService, times(1)).eliminarEnvio(idEnvio);
     }

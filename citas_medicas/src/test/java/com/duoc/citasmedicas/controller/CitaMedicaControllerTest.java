@@ -20,10 +20,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CitaMedicaController.class)
@@ -94,12 +95,16 @@ public class CitaMedicaControllerTest {
     public void getCitasByIdTest() throws Exception {
 
         int idCita = 1;
-        when(citaMedicaServiceMock.obtenerCitaMedicaById(idCita)).thenReturn(Optional.ofNullable(any(CitaMedicaDTO.class)));
+
+        // Aquí retornamos el objeto simulado en lugar de any()
+        when(citaMedicaServiceMock.obtenerCitaMedicaById(idCita)).thenReturn(citaMedicaDTO);
+
         // Ejecutar el test
         mockMvc.perform(get("/api/cita/{idCita}", idCita)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idCita").value(citaMedicaDTO.getIdCita())); // Verificar el contenido
 
         verify(citaMedicaServiceMock, times(1)).obtenerCitaMedicaById(idCita);
     }
@@ -141,6 +146,15 @@ public class CitaMedicaControllerTest {
     @Test
     public void eliminarCitaMedicaByIdTest() throws Exception {
 
+        int idCita = 1;
+        doNothing().when(citaMedicaServiceMock).eliminarCitaMedicaById(idCita);
+
+        mockMvc.perform(delete("/api/cita/borrarCitaMedica/{id_cita}", idCita)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(citaMedicaServiceMock, times(1)).eliminarCitaMedicaById(idCita);
     }
 
 }

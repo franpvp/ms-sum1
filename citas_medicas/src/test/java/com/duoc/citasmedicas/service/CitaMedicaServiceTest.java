@@ -161,10 +161,11 @@ public class CitaMedicaServiceTest {
         when(citaMedicaRepository.findById(1)).thenReturn(Optional.ofNullable(citaMedicaEntity));
         when(citaMapper.citaEntityToDTO(citaMedicaEntity)).thenReturn(citaMedicaDTO);
 
-        Optional<CitaMedicaDTO> resultado = citaMedicaServiceMock.obtenerCitaMedicaById(1);
+        CitaMedicaDTO resultado = citaMedicaServiceMock.obtenerCitaMedicaById(1);
 
-        assertTrue(resultado.isPresent());
-        assertEquals(citaMedicaDTO, resultado.get());
+        assertEquals(pacienteDTO, resultado.getPacienteDTO());
+        assertEquals(medicoDTO, resultado.getMedicoDTO());
+        assertEquals(horarioDTO, resultado.getHorarioDTO());
 
         verify(citaMedicaRepository).findById(1);
     }
