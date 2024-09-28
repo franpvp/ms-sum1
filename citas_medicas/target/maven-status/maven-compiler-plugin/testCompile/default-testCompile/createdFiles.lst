@@ -1,0 +1,7 @@
+com/duoc/citasmedicas/repository/PacienteRepositoryTest.class
+com/duoc/citasmedicas/service/CitaMedicaServiceTest.class
+com/duoc/citasmedicas/repository/CitaMedicaRepositoryTest.class
+com/duoc/citasmedicas/repository/MedicoRepositoryTest.class
+com/duoc/citasmedicas/CitasMedicasApplicationTests.class
+com/duoc/citasmedicas/controller/CitaMedicaControllerTest.class
+com/duoc/citasmedicas/repository/HorarioRepositoryTest.class
