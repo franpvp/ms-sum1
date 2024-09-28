@@ -34,7 +34,7 @@ public class CitaMedicaController {
         List<EntityModel<CitaMedicaDTO>> citaModels = citas.stream()
                 .map(cita -> EntityModel.of(cita,
                         linkTo(methodOn(CitaMedicaController.class).getCitasById(cita.getIdCita())).withSelfRel(),
-                        linkTo(methodOn(CitaMedicaController.class).eliminarCitaMedicaById(cita.getIdCita())).withSelfRel()
+                        linkTo(methodOn(CitaMedicaController.class).eliminarCitaMedicaById(cita.getIdCita())).withRel("eliminarCita")
                 ))
                 .collect(Collectors.toList());
 
@@ -50,7 +50,7 @@ public class CitaMedicaController {
 
         EntityModel<CitaMedicaDTO> citaModel = EntityModel.of(cita,
                 linkTo(methodOn(CitaMedicaController.class).getCitasById(idCita)).withSelfRel(),
-                linkTo(methodOn(CitaMedicaController.class).eliminarCitaMedicaById(idCita)).withSelfRel(),
+                linkTo(methodOn(CitaMedicaController.class).eliminarCitaMedicaById(idCita)).withRel("eliminarCita"),
                 linkTo(methodOn(CitaMedicaController.class).obtenerCitasMedicas()).withRel("allCitas"));
 
         return new ResponseEntity<>(citaModel, HttpStatus.OK);
@@ -67,7 +67,8 @@ public class CitaMedicaController {
                 .collect(Collectors.toList());
 
         CollectionModel<EntityModel<HorarioDTO>> collectionModel = CollectionModel.of(horarioModels,
-                linkTo(methodOn(CitaMedicaController.class).obtenerCitasMedicas()).withSelfRel());
+                linkTo(methodOn(CitaMedicaController.class).obtenerCitasMedicas()).withRel("citas"),
+                linkTo(methodOn(CitaMedicaController.class).getHorariosDisponibles()).withSelfRel());
 
         return new ResponseEntity<>(collectionModel, HttpStatus.OK);
     }
@@ -82,6 +83,7 @@ public class CitaMedicaController {
         // Crear EntityModel con los enlaces
         EntityModel<CitaMedicaDTO> responseModel = EntityModel.of(citaMedicaDTOActualizada,
                 linkTo(methodOn(CitaMedicaController.class).getCitasById(citaMedicaDTOActualizada.getIdCita())).withSelfRel(),
+                linkTo(methodOn(CitaMedicaController.class).eliminarCitaMedicaById(idCita)).withRel("eliminarCita"),
                 linkTo(methodOn(CitaMedicaController.class).obtenerCitasMedicas()).withRel("allCitas"));
         // Devolver la respuesta con el EntityModel y el status OK
         return new ResponseEntity<>(responseModel, HttpStatus.OK);

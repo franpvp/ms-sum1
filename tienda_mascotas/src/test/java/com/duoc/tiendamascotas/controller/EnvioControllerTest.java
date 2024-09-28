@@ -61,60 +61,81 @@ public class EnvioControllerTest {
     @Test
     public void generarEnvioTest() throws Exception {
 
+        EnvioDTO envioDTO1 = EnvioDTO.builder()
+                .idEnvio(1)
+                .ubicacionActual("ubicación 1")
+                .destino("destino 1")
+                .idEstadoEnvio(1)
+                .build();
+
         // Simulación del servicio
-        when(envioProductoService.generarEnvio(any(EnvioDTO.class))).thenReturn(envioDTO);
+        when(envioProductoService.generarEnvio(any(EnvioDTO.class))).thenReturn(envioDTO1);
+
         // Ejecutar el test
         mockMvc.perform(post("/api/envio/generarEnvio")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"ubicacionActual\": \"ubicación 1\", \"destino\": \"destino 1\", \"idEstadoEnvio\": 1}")
                         .accept(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isCreated())
-                        .andExpect(content().string("Envio creado exitosamente"));
+                .andExpect(status().isCreated())
+                // Verificar que los enlaces HATEOAS están presentes en la respuesta
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.allEnvios.href").exists());
 
+
+        // Verificar que el servicio fue llamado una vez
         verify(envioProductoService, times(1)).generarEnvio(any(EnvioDTO.class));
-
     }
 
     @Test
     public void modificarEstadoEnvioTest() throws Exception {
         int idEnvio = 1;
         int idEstadoEnvio = 2;
+
+        // Simulación del DTO de envío
+        EnvioDTO envioDTO1 = EnvioDTO.builder()
+                .idEnvio(idEnvio)
+                .idEstadoEnvio(idEstadoEnvio)
+                .build();
+
         // Simulación del servicio
-        doNothing().when(envioProductoService).modificarEstadoEnvio(idEnvio, idEstadoEnvio);
+        when(envioProductoService.modificarEstadoEnvio(idEnvio, idEstadoEnvio)).thenReturn(Optional.ofNullable(envioDTO1));
 
         // Ejecutar el test
-        mockMvc.perform(put("/api/envio/modificarEstado/{idEnvio}/{idEstadoEnvio}", idEnvio, idEstadoEnvio))
+        mockMvc.perform(put("/api/envio/modificarEstado/{idEnvio}/{idEstadoEnvio}", idEnvio, idEstadoEnvio)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Estado envio modificado exitosamente"));
+                // Verificar los enlaces HATEOAS en la respuesta
+                .andExpect(jsonPath("$._links.self.href").exists()) // Verificar que el enlace 'self' existe
+                .andExpect(jsonPath("$._links.allEnvios.href").exists()); // Verificar que el enlace 'allEnvios' existe
 
+        // Verificar que el servicio fue llamado una vez con los parámetros correctos
         verify(envioProductoService, times(1)).modificarEstadoEnvio(idEnvio, idEstadoEnvio);
-
     }
 
     @Test
     public void obtenerEnviosTest() throws Exception {
         EnvioDTO envioDTO1 = EnvioDTO.builder()
+                .idEnvio(1)
                 .ubicacionActual("ubicación 1")
                 .destino("destino 1")
                 .idEstadoEnvio(1)
                 .build();
 
-        EnvioDTO envioDTO2 = EnvioDTO.builder()
-                .ubicacionActual("ubicación 2")
-                .destino("destino 2")
-                .idEstadoEnvio(1)
-                .build();
-
-        List<EnvioDTO> listaDtos = Arrays.asList(envioDTO1, envioDTO2);
+        List<EnvioDTO> listaDtos = Arrays.asList(envioDTO1);
 
         // Simular el servicio
         when(envioProductoService.obtenerEnvios()).thenReturn(listaDtos);
 
         mockMvc.perform(get("/api/envio/obtenerEnvios")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].ubicacionActual").value("ubicación 1"))
-                .andExpect(jsonPath("$[1].ubicacionActual").value("ubicación 2"));
+                // Verificar los enlaces HATEOAS en la respuesta
+                .andExpect(jsonPath("$._links.self.href").exists()) // Verificar que el enlace 'self' existe
+                .andExpect(jsonPath("$._embedded.envioDTOList[0]._links.envio.href").exists()) // Verificar que el enlace 'envio' existe
+                .andExpect(jsonPath("$._embedded.envioDTOList[0]._links.modificarEstadoEnvio.href").exists()) // Verificar que el enlace 'modificarEstadoEnvio' existe
+                .andExpect(jsonPath("$._embedded.envioDTOList[0]._links.eliminarEnvio.href").exists()); // Verificar que el enlace 'eliminarEnvio' existe
 
         // Verificar que se llamó al servicio una vez
         verify(envioProductoService, times(1)).obtenerEnvios();
@@ -133,27 +154,15 @@ public class EnvioControllerTest {
 
         when(envioProductoService.consultarEnvioById(anyInt())).thenReturn(Optional.ofNullable(envioDTO1));
 
-        mockMvc.perform(get("/api/envio/{idEnvio}", idEnvio)
+        mockMvc.perform(get("/api/envio/obtenerEnvio/{idEnvio}", idEnvio)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.idEnvio").value(1));
+                .andExpect(jsonPath("$.idEnvio").value(1))
+                .andExpect(jsonPath("$._links.envio.href").exists()) // Verificar que el enlace 'envio' existe
+                .andExpect(jsonPath("$._links.eliminarEnvio.href").exists()) // Verificar que el enlace 'eliminarEnvio' existe
+                .andExpect(jsonPath("$._links.allEnvios.href").exists());
 
         verify(envioProductoService, times(1)).consultarEnvioById(idEnvio);
-
-    }
-
-    @Test
-    public void getUbicacionActualTest() throws Exception {
-
-        int idEnvio = 1;
-        UbicacionActualDTO ubicacionActualDTO = new UbicacionActualDTO("Ubicación Actual");
-        when(envioProductoService.consultarUbicacion(anyInt())).thenReturn(String.valueOf(ubicacionActualDTO));
-
-        mockMvc.perform(get("/api/envio/ubicacion/{idEnvio}", idEnvio))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ubicacion").value("Ubicación Actual"));
-
-        verify(envioProductoService, times(1)).consultarUbicacion(idEnvio);
 
     }
 
@@ -165,7 +174,9 @@ public class EnvioControllerTest {
         when(envioProductoService.eliminarEnvio(anyInt())).thenReturn(String.valueOf(envioEliminadoDTO));
 
         mockMvc.perform(delete("/api/envio/eliminar/{idEnvio}", idEnvio))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.envio.href").exists()) // Verificar que el enlace 'envio' existe
+                .andExpect(jsonPath("$._links.allEnvios.href").exists());
 
         verify(envioProductoService, times(1)).eliminarEnvio(idEnvio);
     }

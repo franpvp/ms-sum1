@@ -115,7 +115,7 @@ public class CitaMedicaRepositoryTest {
                 .build());
 
         // Assert
-        assertNotNull(citaMedica.getIdCita(), "El ID de la película no debe ser nulo");
+        assertNotNull(citaMedica.getIdCita(), "El ID de la cita medica no debe ser nulo");
         assertEquals(pacienteEntity, citaMedica.getPaciente());
         assertEquals(medicoEntity, citaMedica.getMedico());
         assertEquals(horarioEntity, citaMedica.getHorario());
@@ -135,7 +135,7 @@ public class CitaMedicaRepositoryTest {
     }
 
     @Test
-    public void obtenerCitasMedicasByIdTest() {
+    public void obtenerCitaMedicaByIdTest() {
 
         int idCita = 1;
         Optional<CitaMedicaEntity> citaMedicaEntity1 = citaMedicaRepository.findById(idCita);
@@ -147,7 +147,7 @@ public class CitaMedicaRepositoryTest {
     }
 
     @Test
-    public void eliminarCitasMedicasByIdTest() {
+    public void eliminarCitaMedicaByIdTest() {
         int idCita = 1;
         citaMedicaRepository.deleteById(idCita);
         assertFalse(citaMedicaRepository.existsById(idCita));

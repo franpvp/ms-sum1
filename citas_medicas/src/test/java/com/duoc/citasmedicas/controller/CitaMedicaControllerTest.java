@@ -22,8 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -77,34 +76,55 @@ public class CitaMedicaControllerTest {
 
     @Test
     public void getCitasMedicasTest() throws Exception {
+        // Simular una lista de citas médicas
+        CitaMedicaDTO citaMedicaDTO1 = CitaMedicaDTO.builder()
+                .idCita(1)
+                .pacienteDTO(pacienteDTO)
+                .medicoDTO(medicoDTO)
+                .horarioDTO(horarioDTO)
+                .build();
 
-        List<CitaMedicaDTO> listaCitasDto = Arrays.asList(citaMedicaDTO);
+        CitaMedicaDTO citaMedicaDTO2 = CitaMedicaDTO.builder()
+                .idCita(2)
+                .pacienteDTO(pacienteDTO)
+                .medicoDTO(medicoDTO)
+                .horarioDTO(horarioDTO)
+                .build();
 
+        List<CitaMedicaDTO> listaCitasDto = Arrays.asList(citaMedicaDTO1, citaMedicaDTO2);
+
+        // Simular el servicio
         when(citaMedicaServiceMock.obtenerCitasMedicas()).thenReturn(listaCitasDto);
+
         // Ejecutar el test
         mockMvc.perform(get("/api/cita/obtenerCitasMedicas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._embedded.citaMedicaDTOList[0]._links.self.href").exists())
+                .andExpect(jsonPath("$._embedded.citaMedicaDTOList[0]._links.eliminarCita.href").exists())
+                .andExpect(jsonPath("$._embedded.citaMedicaDTOList[1]._links.self.href").exists())
+                .andExpect(jsonPath("$._embedded.citaMedicaDTOList[1]._links.eliminarCita.href").exists());
 
         verify(citaMedicaServiceMock, times(1)).obtenerCitasMedicas();
-
     }
 
     @Test
     public void getCitasByIdTest() throws Exception {
 
         int idCita = 1;
-
-        // Aquí retornamos el objeto simulado en lugar de any()
         when(citaMedicaServiceMock.obtenerCitaMedicaById(idCita)).thenReturn(citaMedicaDTO);
 
-        // Ejecutar el test
         mockMvc.perform(get("/api/cita/{idCita}", idCita)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.idCita").value(citaMedicaDTO.getIdCita())); // Verificar el contenido
+                .andExpect(jsonPath("$.idCita").value(citaMedicaDTO.getIdCita()))
+                .andExpect(jsonPath("$.idCita").value(citaMedicaDTO.getIdCita()))
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.eliminarCita.href").exists())
+                .andExpect(jsonPath("$._links.allCitas.href").exists());
 
         verify(citaMedicaServiceMock, times(1)).obtenerCitaMedicaById(idCita);
     }
@@ -119,28 +139,53 @@ public class CitaMedicaControllerTest {
         mockMvc.perform(get("/api/cita/horarios-disponibles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.citas.href").exists())
+                .andExpect(jsonPath("$._embedded.horarioDTOList[0]._links.self.href").exists());
 
         verify(citaMedicaServiceMock, times(1)).obtenerDisponibilidadHorarios();
     }
 
-//    @Test
-//    public void crearCitaMedicaTest() throws Exception {
-//
-//        when(citaMedicaServiceMock.crearCitaMedica(any(CitaMedicaDTO.class))).thenReturn(citaMedicaDTO);
-//
-//        mockMvc.perform(post("/api/cita/crearCitaMedica")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isCreated())
-//                .andExpect(content().string("Cita médica creada correctamente"));
-//
-//        verify(citaMedicaServiceMock, times(1)).crearCitaMedica(any(CitaMedicaDTO.class));
-//    }
+    @Test
+    public void crearCitaMedicaTest() throws Exception {
+
+        when(citaMedicaServiceMock.crearCitaMedica(any(CitaMedicaDTO.class))).thenReturn(citaMedicaDTO);
+
+        mockMvc.perform(post("/api/cita/crearCitaMedica")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(citaMedicaDTO))) // Aquí se agrega el contenido
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.allCitas.href").exists());
+
+        verify(citaMedicaServiceMock, times(1)).crearCitaMedica(any(CitaMedicaDTO.class));
+    }
 
     @Test
     public void modificarCitaMedicaTest() throws Exception {
 
+        int idCita = 1;
+        citaMedicaDTO.setIdCita(idCita);
+        CitaMedicaDTO citaMedicaDTOActualizada = CitaMedicaDTO.builder()
+                .pacienteDTO(pacienteDTO)
+                .medicoDTO(medicoDTO)
+                .horarioDTO(horarioDTO)
+                .build();
+
+        citaMedicaDTOActualizada.setIdCita(idCita);
+        when(citaMedicaServiceMock.modificarCitaMedica(idCita, citaMedicaDTO)).thenReturn(citaMedicaDTOActualizada);
+
+        mockMvc.perform(put("/api/cita/modificarCitaMedica/{idCita}", idCita)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(citaMedicaDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idCita").value(idCita))
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.eliminarCita.href").exists())
+                .andExpect(jsonPath("$._links.allCitas.href").exists());
     }
 
     @Test
@@ -152,8 +197,10 @@ public class CitaMedicaControllerTest {
         mockMvc.perform(delete("/api/cita/borrarCitaMedica/{id_cita}", idCita)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.cita.href").exists())
+                .andExpect(jsonPath("$._links.allCitas.href").exists());
+        
         verify(citaMedicaServiceMock, times(1)).eliminarCitaMedicaById(idCita);
     }
 
