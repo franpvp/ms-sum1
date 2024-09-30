@@ -32,7 +32,7 @@ public class EnvioController {
     @Autowired
     private EnvioProductoService envioProductoService;
 
-    @PostMapping("/generarEnvio")
+    @PostMapping
     public ResponseEntity<EntityModel<EnvioDTO>> generarEnvio(
             @Valid @RequestBody EnvioDTO envioDTO
     ) {
@@ -47,10 +47,10 @@ public class EnvioController {
 
     }
 
-    @PutMapping("/modificarEstado/{idEnvio}/{idEstadoEnvio}")
+    @PutMapping("/modificar-estado/{id-envio}/{id-estado}")
     public ResponseEntity<EntityModel<EnvioDTO>> modificarEstadoEnvio(
-            @PathVariable("idEnvio") int idEnvio,
-            @PathVariable("idEstadoEnvio") int idEstadoEnvio) {
+            @PathVariable("id-envio") int idEnvio,
+            @PathVariable("id-estado") int idEstadoEnvio) {
 
         // Modificar el estado del envío y devolver el DTO modificado
         Optional<EnvioDTO> envioModificadoOpt = envioProductoService.modificarEstadoEnvio(idEnvio, idEstadoEnvio);
@@ -69,7 +69,7 @@ public class EnvioController {
         return new ResponseEntity<>(responseModel, HttpStatus.OK);
     }
 
-    @GetMapping("/obtenerEnvios")
+    @GetMapping("/obtener-envios")
     public ResponseEntity<CollectionModel<EntityModel<EnvioDTO>>> obtenerEnvios() {
         List<EnvioDTO> envios = envioProductoService.obtenerEnvios();
 
@@ -88,8 +88,8 @@ public class EnvioController {
         return new ResponseEntity<>(collectionModel, HttpStatus.OK);
     }
 
-    @GetMapping("/obtenerEnvio/{idEnvio}")
-    public ResponseEntity<EntityModel<Optional<EnvioDTO>>> obtenerEnvioById(@PathVariable("idEnvio") int idEnvio) {
+    @GetMapping("/{id-envio}")
+    public ResponseEntity<EntityModel<Optional<EnvioDTO>>> obtenerEnvioById(@PathVariable("id-envio") int idEnvio) {
         // Lógica para obtener un envío por su ID
         Optional<EnvioDTO> envio = envioProductoService.consultarEnvioById(idEnvio);
 
@@ -105,8 +105,8 @@ public class EnvioController {
         return new ResponseEntity<>(envioModel, HttpStatus.OK);
     }
 
-    @GetMapping("/ubicacion/{idEnvio}")
-    public ResponseEntity<EntityModel<UbicacionActualDTO>> getUbicacionActual(@PathVariable("idEnvio") int idEnvio) {
+    @GetMapping("/ubicacion/{id-envio}")
+    public ResponseEntity<EntityModel<UbicacionActualDTO>> getUbicacionActual(@PathVariable("id-envio") int idEnvio) {
 
         EnvioDTO envio = envioProductoService.consultarEnvioById(idEnvio)
                 .orElseThrow(() -> new EnvioNotFoundException("Envio no encontrado para el id: " + idEnvio));
@@ -126,8 +126,8 @@ public class EnvioController {
     }
 
 
-    @DeleteMapping("/eliminar/{idEnvio}")
-    public ResponseEntity<EntityModel<EnvioEliminadoDTO>> eliminarEnvioById(@PathVariable("idEnvio") int idEnvio) {
+    @DeleteMapping("/eliminar-envio/{id-envio}")
+    public ResponseEntity<EntityModel<EnvioEliminadoDTO>> eliminarEnvioById(@PathVariable("id-envio") int idEnvio) {
 
         envioProductoService.eliminarEnvio(idEnvio);
         EnvioEliminadoDTO envioEliminadoDTO = new EnvioEliminadoDTO("Envio eliminado con id: " + idEnvio);

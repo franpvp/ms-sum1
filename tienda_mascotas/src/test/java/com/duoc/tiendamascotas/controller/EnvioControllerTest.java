@@ -72,7 +72,7 @@ public class EnvioControllerTest {
         when(envioProductoService.generarEnvio(any(EnvioDTO.class))).thenReturn(envioDTO1);
 
         // Ejecutar el test
-        mockMvc.perform(post("/api/envio/generarEnvio")
+        mockMvc.perform(post("/api/envio")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"ubicacionActual\": \"ubicación 1\", \"destino\": \"destino 1\", \"idEstadoEnvio\": 1}")
                         .accept(MediaType.APPLICATION_JSON))
@@ -101,7 +101,7 @@ public class EnvioControllerTest {
         when(envioProductoService.modificarEstadoEnvio(idEnvio, idEstadoEnvio)).thenReturn(Optional.ofNullable(envioDTO1));
 
         // Ejecutar el test
-        mockMvc.perform(put("/api/envio/modificarEstado/{idEnvio}/{idEstadoEnvio}", idEnvio, idEstadoEnvio)
+        mockMvc.perform(put("/api/envio/modificar-estado/{id-envio}/{id-estado}", idEnvio, idEstadoEnvio)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -127,7 +127,7 @@ public class EnvioControllerTest {
         // Simular el servicio
         when(envioProductoService.obtenerEnvios()).thenReturn(listaDtos);
 
-        mockMvc.perform(get("/api/envio/obtenerEnvios")
+        mockMvc.perform(get("/api/envio/obtener-envios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -154,7 +154,7 @@ public class EnvioControllerTest {
 
         when(envioProductoService.consultarEnvioById(anyInt())).thenReturn(Optional.ofNullable(envioDTO1));
 
-        mockMvc.perform(get("/api/envio/obtenerEnvio/{idEnvio}", idEnvio)
+        mockMvc.perform(get("/api/envio/{idEnvio}", idEnvio)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idEnvio").value(1))
@@ -173,7 +173,7 @@ public class EnvioControllerTest {
 
         when(envioProductoService.eliminarEnvio(anyInt())).thenReturn(String.valueOf(envioEliminadoDTO));
 
-        mockMvc.perform(delete("/api/envio/eliminar/{idEnvio}", idEnvio))
+        mockMvc.perform(delete("/api/envio/eliminar-envio/{id-envio}", idEnvio))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.envio.href").exists()) // Verificar que el enlace 'envio' existe
                 .andExpect(jsonPath("$._links.allEnvios.href").exists());
