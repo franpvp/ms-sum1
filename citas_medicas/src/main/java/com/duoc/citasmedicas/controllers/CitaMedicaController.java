@@ -27,7 +27,7 @@ public class CitaMedicaController {
     @Autowired
     private CitaMedicaService citaMedicaService;
 
-    @GetMapping("/obtenerCitasMedicas")
+    @GetMapping("/obtener-citas")
     public ResponseEntity<CollectionModel<EntityModel<CitaMedicaDTO>>> obtenerCitasMedicas() {
         List<CitaMedicaDTO> citas = citaMedicaService.obtenerCitasMedicas();
 
@@ -44,8 +44,8 @@ public class CitaMedicaController {
         return new ResponseEntity<>(collectionModel, HttpStatus.OK);
     }
 
-    @GetMapping("/{idCita}")
-    public ResponseEntity<EntityModel<CitaMedicaDTO>> getCitasById(@PathVariable("idCita") int idCita) {
+    @GetMapping("/{id-cita}")
+    public ResponseEntity<EntityModel<CitaMedicaDTO>> getCitasById(@PathVariable("id-cita") int idCita) {
         CitaMedicaDTO cita = citaMedicaService.obtenerCitaMedicaById(idCita);
 
         EntityModel<CitaMedicaDTO> citaModel = EntityModel.of(cita,
@@ -73,9 +73,9 @@ public class CitaMedicaController {
         return new ResponseEntity<>(collectionModel, HttpStatus.OK);
     }
 
-    @PutMapping("modificarCitaMedica/{idCita}")
+    @PutMapping("/modificar-cita/{id-cita}")
     public ResponseEntity<EntityModel<CitaMedicaDTO>> modificarEstadoEnvio(
-            @PathVariable("idCita") int idCita,
+            @PathVariable("id-cita") int idCita,
             @Valid @RequestBody(required = true) CitaMedicaDTO nuevaCitaMedicaDTO
     ) {
         CitaMedicaDTO citaMedicaDTOActualizada = citaMedicaService.modificarCitaMedica(idCita, nuevaCitaMedicaDTO);
@@ -90,7 +90,7 @@ public class CitaMedicaController {
     }
 
 
-    @PostMapping("/crearCitaMedica")
+    @PostMapping
     public ResponseEntity<EntityModel<CitaMedicaDTO>> crearCitaMedica(
             @Valid @RequestBody CitaMedicaDTO citaMedicaDTO
     ) {
@@ -105,8 +105,8 @@ public class CitaMedicaController {
 
     }
 
-    @DeleteMapping("borrarCitaMedica/{id_cita}")
-    public ResponseEntity<EntityModel<EliminarCitaDTO>> eliminarCitaMedicaById(@PathVariable("id_cita") int id_cita) {
+    @DeleteMapping("/borrar-cita/{id-cita}")
+    public ResponseEntity<EntityModel<EliminarCitaDTO>> eliminarCitaMedicaById(@PathVariable("id-cita") int id_cita) {
 
         citaMedicaService.eliminarCitaMedicaById(id_cita);
         EliminarCitaDTO envioEliminadoDTO = new EliminarCitaDTO("Cita Medica eliminada con id: " + id_cita);

@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     // Manejar excepciones cuando no se ingrese un body
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return new ResponseEntity<>("El cuerpo de la solicitud no puede estar vacío", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Hay un error en body de la solicitud", HttpStatus.BAD_REQUEST);
     }
 
     // Manejar excepciones genéricas

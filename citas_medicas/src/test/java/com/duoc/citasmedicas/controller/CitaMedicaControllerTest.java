@@ -97,7 +97,7 @@ public class CitaMedicaControllerTest {
         when(citaMedicaServiceMock.obtenerCitasMedicas()).thenReturn(listaCitasDto);
 
         // Ejecutar el test
-        mockMvc.perform(get("/api/cita/obtenerCitasMedicas")
+        mockMvc.perform(get("/api/cita/obtener-citas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -116,7 +116,7 @@ public class CitaMedicaControllerTest {
         int idCita = 1;
         when(citaMedicaServiceMock.obtenerCitaMedicaById(idCita)).thenReturn(citaMedicaDTO);
 
-        mockMvc.perform(get("/api/cita/{idCita}", idCita)
+        mockMvc.perform(get("/api/cita/{id-cita}", idCita)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -152,7 +152,7 @@ public class CitaMedicaControllerTest {
 
         when(citaMedicaServiceMock.crearCitaMedica(any(CitaMedicaDTO.class))).thenReturn(citaMedicaDTO);
 
-        mockMvc.perform(post("/api/cita/crearCitaMedica")
+        mockMvc.perform(post("/api/cita")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(citaMedicaDTO))) // Aquí se agrega el contenido
@@ -177,7 +177,7 @@ public class CitaMedicaControllerTest {
         citaMedicaDTOActualizada.setIdCita(idCita);
         when(citaMedicaServiceMock.modificarCitaMedica(idCita, citaMedicaDTO)).thenReturn(citaMedicaDTOActualizada);
 
-        mockMvc.perform(put("/api/cita/modificarCitaMedica/{idCita}", idCita)
+        mockMvc.perform(put("/api/cita/modificar-cita/{id-cita}", idCita)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(citaMedicaDTO)))
@@ -194,13 +194,13 @@ public class CitaMedicaControllerTest {
         int idCita = 1;
         doNothing().when(citaMedicaServiceMock).eliminarCitaMedicaById(idCita);
 
-        mockMvc.perform(delete("/api/cita/borrarCitaMedica/{id_cita}", idCita)
+        mockMvc.perform(delete("/api/cita/borrar-cita/{id-cita}", idCita)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.cita.href").exists())
                 .andExpect(jsonPath("$._links.allCitas.href").exists());
-        
+
         verify(citaMedicaServiceMock, times(1)).eliminarCitaMedicaById(idCita);
     }
 
